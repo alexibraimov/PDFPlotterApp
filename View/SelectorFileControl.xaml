@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="CropPDF.View.SelectorFileControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CropPDF.View"
+             mc:Ignorable="d">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="2*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Button Grid.Column="1" Grid.Row="1" Content="Выбрать PDF файл" BorderThickness="0" Background="#264261" Click="OnSelectClick" Foreground="#FFFFFF" FontSize="16">
+
+        </Button>
+        <Grid Grid.Column="1" Grid.Row="2">
+            <Label x:Name="lblFileUrl" Content="{Binding FileName}" Foreground="#FFFFFF" FontSize="12"/>
+        </Grid>
+        <Grid Grid.Column="2" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="3*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Button Grid.Column="1" Grid.Row="1" Content="Дальше" BorderThickness="0" Background="#264261" Foreground="#FFFFFF" FontSize="16" Visibility="{Binding IsVisibleNextButton}" Click="OnNextClick">
+
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>

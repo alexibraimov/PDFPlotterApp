@@ -1,0 +1,15 @@
+﻿<Window x:Class="CropPDF.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CropPDF.View"
+        mc:Ignorable="d"
+        Title="CropPDF App" Height="450" Width="800" MinHeight="300" MinWidth="500" ResizeMode="CanResizeWithGrip"  Background="#336769" >
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <local:SelectorFileControl VerticalAlignment="Stretch" HorizontalAlignment="Stretch" NextButtonClicked="OnNextButtonClicked" x:Name="ctlSelectorFile">
+        </local:SelectorFileControl>
+        <local:ExpectationsControl VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Visibility="Hidden" x:Name="ctlExpect">
+        </local:ExpectationsControl>
+    </Grid>
+</Window>
