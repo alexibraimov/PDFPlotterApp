@@ -168,5 +168,11 @@
   <ItemGroup>
     <Folder Include="Model\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CropHackLib\CropHackLib.csproj">
+      <Project>{b9811c2f-6025-49bd-a9d2-b2e04f82c173}</Project>
+      <Name>CropHackLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

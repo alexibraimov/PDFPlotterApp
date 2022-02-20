@@ -18,12 +18,21 @@ namespace CropPDF.Classes.Helpers
             var folder = Path.GetDirectoryName(pathFile);
 
             var tempFolder = FileHelper.Create("temp");
-            var patternFile = Path.Combine(folder, $"{fileName}_pattern_art.pdf");
-            var resultFile = Path.Combine(folder, $"{fileName}_result_art.pdf");
+            var patternFile = Path.Combine(folder, $"{fileName}_pattern.pdf");
+            var resultFile = Path.Combine(folder, $"{fileName}_result.pdf");
+            var png = Path.Combine(folder, $"{fileName}_ghos.png");
+            var resPdf = Path.Combine(folder, $"{fileName}_itext.pdf");
+            CropHackLib.GhostScriptFacade.GetImageFromPdf(pathFile, png);
+
+            var form = XImage.FromFile(pathFile);
+            
+            CropHackLib.iTextSharpFacade.GetPdfFromImage(png, resPdf, (float)form.PointWidth, (float)form.PointHeight);
+            form.Dispose(); 
+
 
             try
             {
-                var form = XImage.FromFile(pathFile);
+                form = XImage.FromFile(resPdf);
                 var border = Converter.GetPoints(10);
                 var array = A4.GetCountPage(form.PixelWidth, form.PixelHeight);
                 var doc = new PdfDocument();
@@ -87,7 +96,7 @@ namespace CropPDF.Classes.Helpers
                     page.Height = new XUnit(form.PointHeight);
                     graphics.DrawImage(form, 0, 0, form.PixelWidth, form.PointHeight);
 
-                    page.ArtBox = new PdfRectangle(new XRect(x * width, y * height, width, height));
+                    page.MediaBox = new PdfRectangle(new XRect(x * width, y * height, width, height));
                     doc.Save($"{folder}\\{x}{y}.pdf");
 
                     CompressPdf($"{folder}\\{x}{y}.pdf");
@@ -112,12 +121,17 @@ namespace CropPDF.Classes.Helpers
                     page.Width = new XUnit(form.PixelWidth);
                     page.Height = new XUnit(form.PointHeight);
                     graphics.DrawImage(form, 0, 0, form.PixelWidth, form.PointHeight);
-                    page.ArtBox = new PdfRectangle(new XRect(x * width, y * height, width, height));
+                    page.MediaBox = new PdfRectangle(new XRect(x * width, y * height, width, height));
                     index++;
                 }
             }
 
             doc.Save(fileName);
+        }
+
+        public static void CompressPdf(string outputFile, string inputFile)
+        {
+
         }
 
         public static void CompressPdf(string targetPath)

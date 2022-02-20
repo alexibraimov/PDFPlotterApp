@@ -45,7 +45,7 @@ namespace CropPDF.View
                 }
                 else
                 {
-                    _ = MessageBox.Show("Размер файла не должен превышать 10 МБ", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _ = MessageBox.Show("Размер файла не должен превышать 1 Гб", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
