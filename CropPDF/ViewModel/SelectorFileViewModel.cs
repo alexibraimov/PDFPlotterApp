@@ -10,6 +10,7 @@ namespace CropPDF.ViewModel
     public class SelectorFileViewModel : BaseViewModel
     {
         private string _fileName;
+        private bool _isOpenFile;
         private Visibility _isVisibleNextButton;
 
         public SelectorFileViewModel()
@@ -26,6 +27,17 @@ namespace CropPDF.ViewModel
                 OnPropertyChanged(nameof(FileName));
             }
         }
+
+        public bool IsOpenFile
+        {
+            get => _isOpenFile;
+            set
+            {
+                _isOpenFile = value;
+                OnPropertyChanged(nameof(IsOpenFile));
+            }
+        }
+
         public Visibility IsVisibleNextButton
         {
             get => _isVisibleNextButton;

@@ -16,14 +16,7 @@ namespace CropHackLib
     {
         static GhostScriptFacade()
         {
-            Check();
-        }
-        public static void Check()
-        {
-            if (!GhostscriptVersionInfo.IsGhostscriptInstalled)
-            {
-                throw new Exception("You don't have Ghostscript installed on this machine!");
-            }
+            GhostScriptLibraryHelper.Check();
         }
 
         public static void GetImageFromPdf(string inputPdfPath, string outputImagePath, ImageFormat imageFormat = null)

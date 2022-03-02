@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CropPDF.View"
         mc:Ignorable="d"
-        Title="CropPDF App" Height="450" Width="800" MinHeight="300" MinWidth="500" ResizeMode="CanResizeWithGrip"  Background="#336769" >
+        Title="Plotter App" Height="450" Width="800" MinHeight="300" MinWidth="500" ResizeMode="CanResizeWithGrip"  Background="#293347" >
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <local:SelectorFileControl VerticalAlignment="Stretch" HorizontalAlignment="Stretch" NextButtonClicked="OnNextButtonClicked" x:Name="ctlSelectorFile">
         </local:SelectorFileControl>

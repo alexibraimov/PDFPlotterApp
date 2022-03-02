@@ -1,6 +1,8 @@
-﻿using Microsoft.Win32;
+﻿using CropHackLib;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +22,13 @@ namespace CropPDF.View
         public MainWindow()
         {
             InitializeComponent();
+            Closed += MainWindow_Closed;
             ctlExpect.ViewModel.Completed += ViewModel_Completed;
+        }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            Process.GetCurrentProcess().Kill();
         }
 
         private void ViewModel_Completed(bool isCompleted)
@@ -48,7 +56,7 @@ namespace CropPDF.View
             {
                 ctlSelectorFile.Visibility = Visibility.Hidden;
                 ctlExpect.Visibility = Visibility.Visible;
-                ctlExpect.ViewModel.Start(ctlSelectorFile.ViewModel.FileName);
+                ctlExpect.ViewModel.Start(ctlSelectorFile.ViewModel.FileName, ctlSelectorFile.ViewModel.IsOpenFile);
             }
         }
     }

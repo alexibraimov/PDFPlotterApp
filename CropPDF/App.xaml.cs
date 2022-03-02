@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CropHackLib;
+using System.Diagnostics;
 using System.Windows;
 
 namespace CropPDF
@@ -13,6 +9,14 @@ namespace CropPDF
     /// </summary>
     public partial class App : Application
     {
-       
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            if (!ProcessHelper.IsAdmin())
+            {
+                MessageBox.Show("Программа должна быть запущена от имени администратора!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                Process.GetCurrentProcess().Kill();
+            }
+            base.OnStartup(e);
+        }
     }
 }

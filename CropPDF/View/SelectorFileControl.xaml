@@ -20,7 +20,13 @@
 
         </Button>
         <Grid Grid.Column="1" Grid.Row="2">
-            <Label x:Name="lblFileUrl" Content="{Binding FileName}" Foreground="#FFFFFF" FontSize="12"/>
+            <StackPanel Grid.Row="0" Orientation="Vertical">
+                <Label x:Name="lblFileUrl" Content="{Binding FileName}" Foreground="#FFFFFF" FontSize="12"/>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <Label Content="Открыть файл после обработки" Foreground="#FFFFFF" FontSize="12" VerticalAlignment="Center"></Label>
+                    <CheckBox IsChecked="{Binding IsOpenFile}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
         </Grid>
         <Grid Grid.Column="2" Grid.Row="2">
             <Grid.ColumnDefinitions>

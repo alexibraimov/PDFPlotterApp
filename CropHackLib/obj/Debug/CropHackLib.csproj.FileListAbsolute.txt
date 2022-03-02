@@ -22,3 +22,4 @@ D:\CropPDF\PdfPlotterApp\CropHackLib\obj\Debug\CropHackLib.csproj.CoreCompileInp
 D:\CropPDF\PdfPlotterApp\CropHackLib\obj\Debug\CropHackLib.csproj.CopyComplete
 D:\CropPDF\PdfPlotterApp\CropHackLib\obj\Debug\CropHackLib.dll
 D:\CropPDF\PdfPlotterApp\CropHackLib\obj\Debug\CropHackLib.pdb
+D:\CropPDF\PdfPlotterApp\CropHackLib\bin\Debug\gsdll64.dll

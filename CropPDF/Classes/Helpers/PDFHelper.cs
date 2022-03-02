@@ -1,6 +1,4 @@
-﻿using MigraDoc.DocumentObjectModel;
-using MigraDoc.Rendering;
-using PdfSharp.Drawing;
+﻿using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System;
@@ -12,7 +10,7 @@ namespace CropPDF.Classes.Helpers
     {
         public static event Action<bool> Completed;
 
-        public static void CropPDF(string pathFile)
+        public static void CropPDF(string pathFile, bool isOpenFile)
         {
             var fileName = Path.GetFileNameWithoutExtension(pathFile);
             var folder = Path.GetDirectoryName(pathFile);
@@ -20,19 +18,19 @@ namespace CropPDF.Classes.Helpers
             var tempFolder = FileHelper.Create("temp");
             var patternFile = Path.Combine(folder, $"{fileName}_pattern.pdf");
             var resultFile = Path.Combine(folder, $"{fileName}_result.pdf");
-            var png = Path.Combine(folder, $"{fileName}_ghos.png");
-            var resPdf = Path.Combine(folder, $"{fileName}_itext.pdf");
-            CropHackLib.GhostScriptFacade.GetImageFromPdf(pathFile, png);
-
-            var form = XImage.FromFile(pathFile);
-            
-            CropHackLib.iTextSharpFacade.GetPdfFromImage(png, resPdf, (float)form.PointWidth, (float)form.PointHeight);
-            form.Dispose(); 
-
-
+            var pngPathFile = Path.Combine(tempFolder, $"{Guid.NewGuid()}.png");
+            var compressPdfPathFile = Path.Combine(tempFolder, $"{Guid.NewGuid()}.pdf");
+            var newFileName = $"{Guid.NewGuid()}.pdf";
+            var newFilePath = Path.Combine(tempFolder, newFileName);
+            File.Copy(pathFile, Path.Combine(tempFolder, newFileName));
             try
             {
-                form = XImage.FromFile(resPdf);
+                CropHackLib.GhostScriptFacade.GetImageFromPdf(newFilePath, pngPathFile);
+                var form = XImage.FromFile(newFilePath);
+                CropHackLib.iTextSharpFacade.GetPdfFromImage(pngPathFile, compressPdfPathFile, (float)form.PointWidth, (float)form.PointHeight);
+                form.Dispose();
+
+                form = XImage.FromFile(compressPdfPathFile);
                 var border = Converter.GetPoints(10);
                 var array = A4.GetCountPage(form.PixelWidth, form.PixelHeight);
                 var doc = new PdfDocument();
@@ -78,6 +76,11 @@ namespace CropPDF.Classes.Helpers
             }
 
             Directory.Delete(tempFolder, true);
+
+            if (isOpenFile && File.Exists(resultFile))
+            {
+                System.Diagnostics.Process.Start(resultFile);
+            }
         }
 
         private static void CropIntoPieces(XImage form, float width, float height, string folder)
