@@ -1,10 +1,6 @@
 ﻿using Ghostscript.NET;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CropHackLib
 {
@@ -12,31 +8,29 @@ namespace CropHackLib
     {
         public static void Check()
         {
-            var dllName = "gsdll64.dll";
-            var path = Path.Combine(Environment.CurrentDirectory, dllName);
-            var systemPath = "C:\\Program Files\\gs\\gs9.55.0\\bin";
-            var systemDllPath = Path.Combine(systemPath, dllName);
-            if (File.Exists(path))
+            var systemPath = "C:\\Program Files\\gs\\gs9.55.0\\bin\\gsdll64.dll";
+            if (File.Exists(systemPath))
             {
-                if (!Directory.Exists(systemPath))
+                if (!GhostscriptVersionInfo.IsGhostscriptInstalled)
                 {
-                    Directory.CreateDirectory(systemPath);
-                }
-
-                if (!File.Exists(systemDllPath))
-                {
-                    File.Copy(path, systemDllPath);
+                    throw new Exception("You don't have Ghostscript installed on this machine!");
                 }
             }
             else
             {
-                throw new Exception("You don't have Ghostscript installed on this machine!");
-            }
-            if (!GhostscriptVersionInfo.IsGhostscriptInstalled)
-            {
-                throw new Exception("You don't have Ghostscript installed on this machine!");
+                Download();
             }
         }
 
+        public static void Download()
+        {
+            var dllName = "gs9550w64.exe";
+            var path = Path.Combine(Environment.CurrentDirectory, dllName);
+            if (File.Exists(path))
+            {
+                System.Diagnostics.Process.Start(path);
+                System.Diagnostics.Process.GetCurrentProcess().Kill();
+            }
+        }
     }
 }

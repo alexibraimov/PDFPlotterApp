@@ -16,7 +16,7 @@ namespace CropHackLib
     {
         static GhostScriptFacade()
         {
-            GhostScriptLibraryHelper.Check();
+
         }
 
         public static void GetImageFromPdf(string inputPdfPath, string outputImagePath, ImageFormat imageFormat = null)
