@@ -41,7 +41,7 @@ namespace CropPDF.View
                 }
                 else
                 {
-                    MessageBox.Show("Не удалось обработать файл", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Не удалось обработать файл" + "\n" + ctlExpect.ViewModel.Error, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 ctlSelectorFile.Visibility = Visibility.Visible;

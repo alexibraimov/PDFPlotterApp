@@ -8,10 +8,16 @@ namespace CropPDF.ViewModel
     {
         private double _progressValue;
         public event Action<bool> Completed;
-
+        public string Error = string.Empty;
         public ExpectationsViewModel()
         {
             PDFHelper.Completed += PDFHelper_Completed;
+            PDFHelper.Error += PDFHelper_Error;
+        }
+
+        private void PDFHelper_Error(string error)
+        {
+            this.Error = error;
         }
 
         public double ProgressValue

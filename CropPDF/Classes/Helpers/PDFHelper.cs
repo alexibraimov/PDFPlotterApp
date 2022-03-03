@@ -10,6 +10,7 @@ namespace CropPDF.Classes.Helpers
     {
         public static event Action<bool> Completed;
 
+        public static event Action<string> Error;
         public static void CropPDF(string pathFile, bool isOpenFile)
         {
             var fileName = Path.GetFileNameWithoutExtension(pathFile);
@@ -37,7 +38,7 @@ namespace CropPDF.Classes.Helpers
                 var width = Converter.GetPoints(A4.Width);
                 var height = Converter.GetPoints(A4.Height);
                 var page = doc.AddPage();
-                CropIntoPieces(form, width - border, height - border, tempFolder);
+                CropIntoPieces(form, width - border , height - border, tempFolder);
                 page.Width = new XUnit(width * array[0]);
                 page.Height = new XUnit(height * array[1]);
                 var graphics = XGraphics.FromPdfPage(page);
@@ -47,13 +48,13 @@ namespace CropPDF.Classes.Helpers
                     for (int y = 0; y < array[1]; y++)
                     {
                         var font = new XFont("Arial", 10, XFontStyle.Bold);
-                        graphics.DrawString($"Страница ({x}, {y})", font, XBrushes.Black, x * width + width / 2 - border / 2, y * height + height - border / 2);
+                        graphics.DrawString($"Страница ({x + 1}, {y + 1})", font, XBrushes.Black, x * width + width / 2 - border / 2, y * height + height - border / 2);
                         graphics.DrawRectangle(new XPen(XColors.Black, 1)
                         {
                             DashStyle = XDashStyle.DashDot,
                             DashPattern = new double[] { 10, 20, 10 }
-                        }, new XRect(x * (width), y * (height), width - border, height - border));
-                        graphics.DrawRectangle(new XPen(XColors.Red, 2)
+                        }, new XRect(x * (width), y * (height), width - border + 1, height - border + 1));
+                        graphics.DrawRectangle(new XPen(XColors.Black, 1)
                         {
                             DashStyle = XDashStyle.Solid
                         }, new XRect(x * width, y * height, width, height));
@@ -66,12 +67,13 @@ namespace CropPDF.Classes.Helpers
 
                 doc.Save(patternFile);
 
-                GluePieces(XImage.FromFile(patternFile), Converter.GetPoints(A4.Width), Converter.GetPoints(A4.Height), resultFile);
+                GluePieces(XImage.FromFile(patternFile), Converter.GetPoints(A4.Width), Converter.GetPoints(A4.Height), resultFile, array);
 
                 Completed?.Invoke(true);
             }
             catch (Exception ex)
             {
+                Error?.Invoke(ex.Message + "\n" + ex.StackTrace);
                 Completed?.Invoke(false);
             }
 
@@ -88,10 +90,31 @@ namespace CropPDF.Classes.Helpers
             var index = 0;
             var array = A4.GetCountPage(form.PixelWidth, form.PixelHeight);
 
-            for (int y = 0; y < array[1]; y++)
+            //for (int y = 0; y < array[1]; y++)
+            //{
+            //    for (int x = 0; x < array[0]; x++)
+            //    {
+            //        var doc = new PdfDocument();
+            //        var page = doc.AddPage();
+            //        var graphics = XGraphics.FromPdfPage(page);
+            //        page.Width = new XUnit(form.PixelWidth);
+            //        page.Height = new XUnit(form.PointHeight);
+            //        graphics.DrawImage(form, 0, 0, form.PixelWidth, form.PointHeight);
+
+            //        page.MediaBox = new PdfRectangle(new XRect(x * width, y * height, width, height));
+            //        doc.Save($"{folder}\\{x}{y}.pdf");
+
+            //        CompressPdf($"{folder}\\{x}{y}.pdf");
+            //        index++;
+            //        doc.Dispose();
+            //    }
+            //}
+
+            for (int x = 0; x < array[0]; x++)
             {
-                for (int x = 0; x < array[0]; x++)
+                for (int y = 0; y < array[1]; y++)
                 {
+                    var yFix = array[1] - 1 - y;
                     var doc = new PdfDocument();
                     var page = doc.AddPage();
                     var graphics = XGraphics.FromPdfPage(page);
@@ -99,33 +122,30 @@ namespace CropPDF.Classes.Helpers
                     page.Height = new XUnit(form.PointHeight);
                     graphics.DrawImage(form, 0, 0, form.PixelWidth, form.PointHeight);
 
-                    page.MediaBox = new PdfRectangle(new XRect(x * width, y * height, width, height));
-                    doc.Save($"{folder}\\{x}{y}.pdf");
+                    page.MediaBox = new PdfRectangle(new XRect(x * width, yFix * height, width, height));
+                    doc.Save($"{folder}\\{x}{yFix}.pdf");
 
-                    CompressPdf($"{folder}\\{x}{y}.pdf");
+                    CompressPdf($"{folder}\\{x}{yFix}.pdf");
                     index++;
                     doc.Dispose();
                 }
             }
         }
 
-        private static void GluePieces(XImage form, float width, float height, string fileName)
+        private static void GluePieces(XImage form, float width, float height, string fileName, int[] array)
         {
-            var index = 0;
-            var array = A4.GetCountPage(form.PixelWidth, form.PixelHeight, false);
-
             var doc = new PdfDocument();
             for (int y = 0; y < array[1]; y++)
             {
                 for (int x = 0; x < array[0]; x++)
                 {
+                    var yFix = array[1] - 1 - y;
                     var page = doc.AddPage();
                     var graphics = XGraphics.FromPdfPage(page);
                     page.Width = new XUnit(form.PixelWidth);
                     page.Height = new XUnit(form.PointHeight);
                     graphics.DrawImage(form, 0, 0, form.PixelWidth, form.PointHeight);
-                    page.MediaBox = new PdfRectangle(new XRect(x * width, y * height, width, height));
-                    index++;
+                    page.MediaBox = new PdfRectangle(new XRect(x * width, yFix * height, width, height));
                 }
             }
 

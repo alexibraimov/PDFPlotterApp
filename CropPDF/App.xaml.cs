@@ -11,11 +11,7 @@ namespace CropPDF
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            if (!ProcessHelper.IsAdmin())
-            {
-                MessageBox.Show("Программа должна быть запущена от имени администратора!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                Process.GetCurrentProcess().Kill();
-            }
+            GhostScriptLibraryHelper.Check(); 
             base.OnStartup(e);
         }
     }
