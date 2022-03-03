@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CropPDF.View"
-        mc:Ignorable="d"
+        mc:Ignorable="d" Icon="pack://application:,,,/favicon.ico"
         Title="Plotter App" Height="450" Width="800" MinHeight="300" MinWidth="500" ResizeMode="CanResizeWithGrip"  Background="#293347" >
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <local:SelectorFileControl VerticalAlignment="Stretch" HorizontalAlignment="Stretch" NextButtonClicked="OnNextButtonClicked" x:Name="ctlSelectorFile">
