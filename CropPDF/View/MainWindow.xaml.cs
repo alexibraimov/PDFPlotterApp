@@ -56,7 +56,7 @@ namespace CropPDF.View
             {
                 ctlSelectorFile.Visibility = Visibility.Hidden;
                 ctlExpect.Visibility = Visibility.Visible;
-                ctlExpect.ViewModel.Start(ctlSelectorFile.ViewModel.FileName, ctlSelectorFile.ViewModel.IsOpenFile);
+                ctlExpect.ViewModel.Start(ctlSelectorFile.ViewModel.FileName, ctlSelectorFile.ViewModel.IsOpenFile, ctlSelectorFile.ViewModel.BorderMM);
             }
         }
     }

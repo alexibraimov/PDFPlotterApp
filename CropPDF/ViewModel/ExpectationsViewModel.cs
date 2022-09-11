@@ -30,11 +30,11 @@ namespace CropPDF.ViewModel
             }
         }
 
-        public void Start(string fileName, bool isOpenFile)
+        public void Start(string fileName, bool isOpenFile, int border)
         {
             Task.Run(()=> 
             {
-                PDFHelper.CropPDF(fileName, isOpenFile);
+                PDFHelper.CropPDF(fileName, isOpenFile, border);
             });
         }
 

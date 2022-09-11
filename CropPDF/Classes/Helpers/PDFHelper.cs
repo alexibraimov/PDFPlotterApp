@@ -2,179 +2,177 @@
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
+using static CropPDF.Classes.A4;
 
 namespace CropPDF.Classes.Helpers
 {
     public static class PDFHelper
     {
+        private static string GetLetter(int index)
+        {
+            var str = @"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+            if (index < str.Length)
+            {
+                return str[index].ToString();
+            }
+
+            return $"{str[index % str.Length]}{index / str.Length}";
+        }
+
         public static event Action<bool> Completed;
 
         public static event Action<string> Error;
-        public static void CropPDF(string pathFile, bool isOpenFile)
-        {
-            var fileName = Path.GetFileNameWithoutExtension(pathFile);
-            var folder = Path.GetDirectoryName(pathFile);
 
-            var tempFolder = FileHelper.Create("temp");
-            var patternFile = Path.Combine(folder, $"{fileName}_pattern.pdf");
-            var resultFile = Path.Combine(folder, $"{fileName}_result.pdf");
-            var pngPathFile = Path.Combine(tempFolder, $"{Guid.NewGuid()}.png");
-            var compressPdfPathFile = Path.Combine(tempFolder, $"{Guid.NewGuid()}.pdf");
-            var newFileName = $"{Guid.NewGuid()}.pdf";
-            var newFilePath = Path.Combine(tempFolder, newFileName);
-            File.Copy(pathFile, Path.Combine(tempFolder, newFileName));
+        public static void CropPDF(string pathFile, bool isOpenFile, int borderMM)
+        {
             try
             {
-                CropHackLib.GhostScriptFacade.GetImageFromPdf(newFilePath, pngPathFile);
-                var form = XImage.FromFile(newFilePath);
-                CropHackLib.iTextSharpFacade.GetPdfFromImage(pngPathFile, compressPdfPathFile, (float)form.PointWidth, (float)form.PointHeight);
-                form.Dispose();
+                var crop = new Crop(pathFile, borderMM).Clone().Setup().Split().Join();
 
-                form = XImage.FromFile(compressPdfPathFile);
-                var border = Converter.GetPoints(10);
-                var array = A4.GetCountPage(form.PixelWidth, form.PixelHeight);
-                var doc = new PdfDocument();
-                var width = Converter.GetPoints(A4.Width);
-                var height = Converter.GetPoints(A4.Height);
-                var page = doc.AddPage();
-                CropIntoPieces(form, width - border , height - border, tempFolder);
-                page.Width = new XUnit(width * array[0]);
-                page.Height = new XUnit(height * array[1]);
-                var graphics = XGraphics.FromPdfPage(page);
-
-                for (int x = 0; x < array[0]; x++)
-                {
-                    for (int y = 0; y < array[1]; y++)
-                    {
-                        var font = new XFont("Arial", 10, XFontStyle.Bold);
-                        graphics.DrawString($"Страница ({x + 1}, {y + 1})", font, XBrushes.Black, x * width + width / 2 - border / 2, y * height + height - border / 2);
-                        graphics.DrawRectangle(new XPen(XColors.Black, 1)
-                        {
-                            DashStyle = XDashStyle.DashDot,
-                            DashPattern = new double[] { 10, 20, 10 }
-                        }, new XRect(x * (width), y * (height), width - border + 1, height - border + 1));
-                        graphics.DrawRectangle(new XPen(XColors.Black, 1)
-                        {
-                            DashStyle = XDashStyle.Solid
-                        }, new XRect(x * width, y * height, width, height));
-                        var f = XImage.FromFile($"{tempFolder}\\{x}{array[1] - 1 - y}.pdf");
-
-                        graphics.DrawImage(f, new XRect(x * width, y * height, width - border, height - border));
-                        f.Dispose();
-                    }
-                }
-
-                doc.Save(patternFile);
-
-                GluePieces(XImage.FromFile(patternFile), Converter.GetPoints(A4.Width), Converter.GetPoints(A4.Height), resultFile, array);
-
+                crop.Dispose();
                 Completed?.Invoke(true);
+
+                if (isOpenFile && File.Exists(crop.FileResultPath))
+                {
+                    System.Diagnostics.Process.Start(crop.FileResultPath);
+                }
             }
             catch (Exception ex)
             {
-                Error?.Invoke(ex.Message + "\n" + ex.StackTrace);
-                Completed?.Invoke(false);
+               Completed?.Invoke(false);
             }
 
-            Directory.Delete(tempFolder, true);
-
-            if (isOpenFile && File.Exists(resultFile))
-            {
-                System.Diagnostics.Process.Start(resultFile);
-            }
+            return;
         }
 
-        private static void CropIntoPieces(XImage form, float width, float height, string folder)
+        public class Crop
         {
-            var index = 0;
-            var array = A4.GetCountPage(form.PixelWidth, form.PixelHeight);
+            private int _borderMM;
+            private string _filePath;
+            private string _folder;
+            private string _fileName;
+            private string _tempFolder;
 
-            //for (int y = 0; y < array[1]; y++)
-            //{
-            //    for (int x = 0; x < array[0]; x++)
-            //    {
-            //        var doc = new PdfDocument();
-            //        var page = doc.AddPage();
-            //        var graphics = XGraphics.FromPdfPage(page);
-            //        page.Width = new XUnit(form.PixelWidth);
-            //        page.Height = new XUnit(form.PointHeight);
-            //        graphics.DrawImage(form, 0, 0, form.PixelWidth, form.PointHeight);
+            public string FileResultPath => Path.Combine(_folder, $"{_fileName}_result.pdf");
+            public string FilePatternPath => Path.Combine(_folder, $"{_fileName}_pattern.pdf");
 
-            //        page.MediaBox = new PdfRectangle(new XRect(x * width, y * height, width, height));
-            //        doc.Save($"{folder}\\{x}{y}.pdf");
 
-            //        CompressPdf($"{folder}\\{x}{y}.pdf");
-            //        index++;
-            //        doc.Dispose();
-            //    }
-            //}
-
-            for (int x = 0; x < array[0]; x++)
+            public Crop(string filePath, int borderMM)
             {
-                for (int y = 0; y < array[1]; y++)
+                _filePath = filePath;
+                _borderMM = borderMM;
+                _folder = Path.GetDirectoryName(_filePath);
+                _fileName = Path.GetFileNameWithoutExtension(_filePath);
+                _tempFolder = FileHelper.Create("temp");
+            }
+
+            private float _borderUnit;
+            private float _widthUnit;
+            private float _heightUnit;
+            private int _dpi;
+            private int _column;
+            private int _row;
+            private XImage _form;
+
+            public Crop Setup()
+            {
+                _form = XImage.FromFile(_filePath);
+                _dpi = (int)_form.HorizontalResolution;
+                _heightUnit = _form.PixelHeight;
+                _widthUnit = _form.PixelWidth;
+                _borderUnit = Converter.GetPoints(_borderMM, _dpi);
+
+                return this;
+            }
+
+            public Crop Clone()
+            {
+                var newFileName = $"{Guid.NewGuid()}.pdf";
+
+                var clonePathFile = Path.Combine(_tempFolder, newFileName);
+                File.Copy(_filePath, clonePathFile);
+                _filePath = clonePathFile;
+
+                return this;
+            }
+
+
+            public Crop Split()
+            {
+                var pngFilePath = Path.Combine(_tempFolder, $"{Guid.NewGuid()}.png");
+                CropHackLib.GhostScriptFacade.GetImageFromPdf(_filePath, pngFilePath, _dpi);
+
+                var image = Image.FromFile(pngFilePath);
+
+                var width = Converter.GetPoints(A4.Width - _borderMM, _dpi);
+                var height = Converter.GetPoints(A4.Height - _borderMM, _dpi);
+
+                _column = (int)Math.Ceiling((double)(_widthUnit / width));
+                _row = (int)Math.Ceiling((double)(_heightUnit / height));
+
+                var flag = new Bitmap((int)(_column * width), (int)(_row * height));
+
+                var leftRightOffset = (flag.Width - _widthUnit) / 2;
+                var topBottomOffset = (flag.Height - _heightUnit) / 2;
+
+                var flagGraphics = Graphics.FromImage(flag);
+                flagGraphics.Clear(Color.White);
+                flagGraphics.DrawImage(image, new PointF(leftRightOffset, topBottomOffset));
+                pngFilePath = Path.Combine(_tempFolder, $"{Guid.NewGuid()}.png");
+                flag.Save(pngFilePath, ImageFormat.Png);
+
+
+                Image.FromFile(pngFilePath).Split(_column, _row, _tempFolder);
+
+                return this;
+            }
+
+            public Crop Join()
+            {
+                var doc = new PdfDocument();
+
+                var width = Converter.GetPoints(A4.Width, _dpi);
+                var height = Converter.GetPoints(A4.Height, _dpi);
+
+                for (int x = 0; x < _column; x++)
                 {
-                    var yFix = array[1] - 1 - y;
-                    var doc = new PdfDocument();
-                    var page = doc.AddPage();
-                    var graphics = XGraphics.FromPdfPage(page);
-                    page.Width = new XUnit(form.PixelWidth);
-                    page.Height = new XUnit(form.PointHeight);
-                    graphics.DrawImage(form, 0, 0, form.PixelWidth, form.PointHeight);
+                    for (int y = 0; y < _row; y++)
+                    {
+                        var imagePath = Path.Combine(_tempFolder, $"{y}_{x}.png");
+                        var image = XImage.FromFile(imagePath);
+                        var page = doc.AddPage();
+                        page.Width = new XUnit(width);
+                        page.Height = new XUnit(height);
+                        var graphics = XGraphics.FromPdfPage(page);
+                        graphics.DrawImage(image, 0, 0, width - _borderUnit, height - _borderUnit);
+                        var font = new XFont("Arial", _borderMM, XFontStyle.Bold);
+                        graphics.DrawString($"Ряд {GetLetter(y)} стр {x + 1}", font, XBrushes.Black, width / 2, height - _borderUnit / 2);
 
-                    page.MediaBox = new PdfRectangle(new XRect(x * width, yFix * height, width, height));
-                    doc.Save($"{folder}\\{x}{yFix}.pdf");
+                        var pen = new XPen(XColors.Black, 1)
+                        {
+                            DashStyle = XDashStyle.DashDot,
+                            DashPattern = new double[] { 10, 20, 10 }
+                        };
+                        graphics.DrawLine(pen, new XPoint(width - _borderUnit, 0), new XPoint(width - _borderUnit, height - _borderUnit));
+                        graphics.DrawLine(pen, new XPoint(0, height - _borderUnit), new XPoint(width - _borderUnit, height - _borderUnit));
 
-                    CompressPdf($"{folder}\\{x}{yFix}.pdf");
-                    index++;
-                    doc.Dispose();
+                        image.Dispose();
+                    }
                 }
-            }
-        }
+                doc.Save(FileResultPath);
 
-        private static void GluePieces(XImage form, float width, float height, string fileName, int[] array)
-        {
-            var doc = new PdfDocument();
-            for (int y = 0; y < array[1]; y++)
+                return this;
+            }
+
+            public void Dispose()
             {
-                for (int x = 0; x < array[0]; x++)
-                {
-                    var yFix = array[1] - 1 - y;
-                    var page = doc.AddPage();
-                    var graphics = XGraphics.FromPdfPage(page);
-                    page.Width = new XUnit(form.PixelWidth);
-                    page.Height = new XUnit(form.PointHeight);
-                    graphics.DrawImage(form, 0, 0, form.PixelWidth, form.PointHeight);
-                    page.MediaBox = new PdfRectangle(new XRect(x * width, yFix * height, width, height));
-                }
-            }
-
-            doc.Save(fileName);
-        }
-
-        public static void CompressPdf(string outputFile, string inputFile)
-        {
-
-        }
-
-        public static void CompressPdf(string targetPath)
-        {
-            using (var stream = new MemoryStream(File.ReadAllBytes(targetPath)) { Position = 0 })
-            using (var source = PdfReader.Open(stream, PdfDocumentOpenMode.Import))
-            using (var document = new PdfDocument())
-            {
-                var options = document.Options;
-                options.FlateEncodeMode = PdfFlateEncodeMode.BestCompression;
-                options.UseFlateDecoderForJpegImages = PdfUseFlateDecoderForJpegImages.Automatic;
-                options.CompressContentStreams = true;
-                options.NoCompression = false;
-                foreach (var page in source.Pages)
-                {
-                    document.AddPage(page);
-                }
-
-                document.Save(targetPath);
+                Directory.Delete(_tempFolder, true);
             }
         }
+
     }
 }

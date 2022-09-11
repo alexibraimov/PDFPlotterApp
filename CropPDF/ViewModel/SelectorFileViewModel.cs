@@ -11,11 +11,34 @@ namespace CropPDF.ViewModel
     {
         private string _fileName;
         private bool _isOpenFile;
+        private int _borderMM ;
         private Visibility _isVisibleNextButton;
 
         public SelectorFileViewModel()
         {
             IsVisibleNextButton = Visibility.Hidden;
+            BorderMM = 10;
+        }
+
+        public int BorderMM 
+        { 
+            get => _borderMM;
+            set
+            {
+                if (value < 0)
+                {
+                    _borderMM = 0;
+                }
+                else if (value > 50)
+                {
+                    _borderMM = 50;
+                }
+                else
+                {
+                    _borderMM = value;
+                }
+                OnPropertyChanged(nameof(BorderMM));
+            }
         }
 
         public string FileName

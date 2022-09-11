@@ -19,13 +19,13 @@ namespace CropHackLib
 
         }
 
-        public static void GetImageFromPdf(string inputPdfPath, string outputImagePath, ImageFormat imageFormat = null)
+        public static void GetImageFromPdf(string inputPdfPath, string outputImagePath, int dpi = 72, ImageFormat imageFormat = null)
         {
             if (imageFormat == null)
             {
                 imageFormat = ImageFormat.Png;
             }
-            int desired_dpi = 80;
+            int desired_dpi = dpi;
 
             using (GhostscriptRasterizer rasterizer = new GhostscriptRasterizer())
             {
@@ -38,7 +38,7 @@ namespace CropHackLib
 
                 for (int pageNumber = 1; pageNumber <= rasterizer.PageCount; pageNumber++)
                 {
-                    Image img = rasterizer.GetPage(desired_dpi, pageNumber);
+                    var img = rasterizer.GetPage(desired_dpi, pageNumber);
                     img.Save(outputImagePath, imageFormat);
                 }
             }
