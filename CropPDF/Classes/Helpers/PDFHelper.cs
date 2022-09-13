@@ -148,9 +148,10 @@ namespace CropPDF.Classes.Helpers
                         var graphics = XGraphics.FromPdfPage(page);
                         graphics.DrawImage(image, _borderUnit, _borderUnit, width - 2 * _borderUnit, height - 2 * _borderUnit);
                         var font = new XFont("Arial", 10, XFontStyle.Regular);
-                        graphics.DrawString($"Ряд {GetLetter(y)} стр {x + 1}", font, XBrushes.Black, width / 2 - 30 , height - _borderUnit - 10);
+                        graphics.DrawString($"Ряд {GetLetter(y)} стр {x + 1}", font, XBrushes.Black, width / 2 - 30 , height - _borderUnit + 10);
 
-                        var pen = new XPen(XColor.FromKnownColor(GlobalSettings.Get("Color", XKnownColor.Black)), GlobalSettings.Get("Thickness", 0.5));
+                        var thickness = GlobalSettings.Get("Thickness", 0.5);
+                        var pen = new XPen(XColor.FromKnownColor(GlobalSettings.Get("Color", XKnownColor.Black)), thickness);
 
                         if (GlobalSettings.Get("Line", LineEnum.Solid) == LineEnum.Solid)
                         {
