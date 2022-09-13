@@ -151,9 +151,9 @@ namespace CropPDF.Classes.Helpers
                         graphics.DrawString($"Ряд {GetLetter(y)} стр {x + 1}", font, XBrushes.Black, width / 2 - 30 , height - _borderUnit + 10);
 
                         var thickness = GlobalSettings.Get("Thickness", 0.5);
-                        var pen = new XPen(XColor.FromKnownColor(GlobalSettings.Get("Color", XKnownColor.Black)), thickness);
+                        var pen = new XPen(XColor.FromKnownColor((XKnownColor)GlobalSettings.Get("Color", (int)XKnownColor.Black)), thickness);
 
-                        if (GlobalSettings.Get("Line", LineEnum.Solid) == LineEnum.Solid)
+                        if ((LineEnum)GlobalSettings.Get("Line", 0) == LineEnum.Solid)
                         {
                             pen.DashStyle = XDashStyle.Solid;
                         }

@@ -44,18 +44,18 @@ namespace CropPDF.ViewModel
 
         public string Line
         {
-            get => GlobalSettings.Get(nameof(Line), LineEnumEx.GetLineEnum(Lines[0]), true).GetName();
+            get =>((LineEnum)GlobalSettings.Get(nameof(Line), (int)LineEnumEx.GetLineEnum(Lines[0]), true)).GetName();
             set
             {
-                GlobalSettings.Set(nameof(Line), LineEnumEx.GetLineEnum(value));
+                GlobalSettings.Set(nameof(Line), (int)LineEnumEx.GetLineEnum(value));
                 OnPropertyChanged(nameof(Line));
             }
         }
 
         public XKnownColor Color
         {
-            get => GlobalSettings.Get(nameof(Color), XKnownColor.Black, true);
-            set => GlobalSettings.Set(nameof(Color), value);
+            get => (XKnownColor) GlobalSettings.Get(nameof(Color), (int)XKnownColor.Black, true);
+            set => GlobalSettings.Set(nameof(Color), (int)value);
         }
     }
 }
