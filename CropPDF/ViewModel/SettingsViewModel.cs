@@ -18,7 +18,7 @@ namespace CropPDF.ViewModel
 
         public int Border
         {
-            get => GlobalSettings.Get(nameof(Border), 5, true);
+            get => GlobalSettings.Get(nameof(Border), 10, true);
             set
             {
                 GlobalSettings.Set(nameof(Border), value);

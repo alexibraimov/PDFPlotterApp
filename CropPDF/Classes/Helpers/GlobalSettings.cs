@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,6 +32,7 @@ namespace CropPDF.Classes.Helpers
                 }
             }
         }
+
         public static void Set<T>(string propertyName, T value) => InternalSet(propertyName, value);
         public static T Get<T>(string propertyName, T defaultValue = default, bool requireValue = false) => InternalGet(propertyName, defaultValue, requireValue);
 
@@ -59,9 +61,9 @@ namespace CropPDF.Classes.Helpers
                     InternalSet(propertyName, defaultValue);
                 }
 
-                return (T)properties[propertyName];
+                return (T)Convert.ChangeType(properties[propertyName], typeof(T));
             }
-            catch
+            catch (Exception ex)
             {
                 InternalSet(propertyName, defaultValue);
                 return defaultValue;
