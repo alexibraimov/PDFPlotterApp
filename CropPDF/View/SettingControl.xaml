@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="CropPDF.View.SettingControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CropPDF.View"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d" >
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5">
+            <Label  VerticalAlignment="Center"
+                        Content="Отступ рамки: "
+                        FontSize="15"
+                        Foreground="#FFFFFF" Height="30"/>
+            <xctk:IntegerUpDown FontSize="15" Minimum="5" Maximum="50" Value="{Binding Border}" Background="Transparent" Foreground="#FFFFFF" Width="60"  Height="30"/>
+            <Label VerticalAlignment="Center"
+                        Content="мм"
+                        FontSize="15"
+                        Foreground="#FFFFFF" Height="30"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5">
+            <Label  VerticalAlignment="Center"
+                        Content="Толщина линий: "
+                        FontSize="15"
+                        Foreground="#FFFFFF" Height="30"/>
+            <xctk:DoubleUpDown FontSize="15" Minimum="0" Increment="0.5" Maximum="5" Value="{Binding Thickness}" Background="Transparent" Foreground="#FFFFFF" Width="60"  Height="30"></xctk:DoubleUpDown>
+            <Label VerticalAlignment="Center"
+                        Content="мм"
+                        FontSize="15"
+                        Foreground="#FFFFFF" Height="30"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5">
+            <Label  VerticalAlignment="Center"
+                        Content="Цвет линий: "
+                        FontSize="15"
+                        Foreground="#FFFFFF" Height="30"/>
+            <ComboBox Grid.Row="1" ItemsSource="{Binding Colors}" SelectedItem="{Binding Color, Mode=TwoWay}" FontSize="15" Height="30"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5">
+            <Label  VerticalAlignment="Center"
+                        Content="Вид линии "
+                        FontSize="15"
+                        Foreground="#FFFFFF" Height="30"/>
+            <ComboBox Grid.Row="1" ItemsSource="{Binding Lines}" SelectedItem="{Binding Line, Mode=TwoWay}" FontSize="15" Height="30"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

@@ -17,6 +17,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
+        <local:SettingControl Grid.Row ="0" Grid.Column="2"/>
         <Button
             Grid.Row="1"
             Grid.Column="1"
@@ -40,25 +41,6 @@
                         FontSize="12"
                         Foreground="#FFFFFF" />
                     <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsOpenFile}" />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Label
-                        VerticalAlignment="Center"
-                        Content="Граница: "
-                        FontSize="12"
-                        Foreground="#FFFFFF" />
-                    <TextBox
-                        Width="30"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center"
-                        FontSize="14"
-                        PreviewTextInput="TextBox_PreviewTextInput"
-                        Text="{Binding BorderMM}" />
-                    <Label
-                        VerticalAlignment="Center"
-                        Content="мм"
-                        FontSize="12"
-                        Foreground="#FFFFFF" />
                 </StackPanel>
             </StackPanel>
         </Grid>

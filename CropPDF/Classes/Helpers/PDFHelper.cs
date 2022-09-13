@@ -27,11 +27,11 @@ namespace CropPDF.Classes.Helpers
 
         public static event Action<string> Error;
 
-        public static void CropPDF(string pathFile, bool isOpenFile, int borderMM)
+        public static void CropPDF(string pathFile, bool isOpenFile)
         {
             try
             {
-                var crop = new Crop(pathFile, borderMM).Clone().Setup().Split().Join();
+                var crop = new Crop(pathFile, GlobalSettings.Get("Border", 5)).Clone().Setup().Split().Join();
 
                 crop.Dispose();
                 Completed?.Invoke(true);
@@ -100,7 +100,6 @@ namespace CropPDF.Classes.Helpers
                 return this;
             }
 
-
             public Crop Split()
             {
                 var pngFilePath = Path.Combine(_tempFolder, $"{Guid.NewGuid()}.png");
@@ -108,8 +107,8 @@ namespace CropPDF.Classes.Helpers
 
                 var image = Image.FromFile(pngFilePath);
 
-                var width = Converter.GetPoints(A4.Width - _borderMM, _dpi);
-                var height = Converter.GetPoints(A4.Height - _borderMM, _dpi);
+                var width = Converter.GetPoints(A4.Width - 2 * _borderMM, _dpi);
+                var height = Converter.GetPoints(A4.Height - 2 * _borderMM, _dpi);
 
                 _column = (int)Math.Ceiling((double)(_widthUnit / width));
                 _row = (int)Math.Ceiling((double)(_heightUnit / height));
@@ -145,20 +144,25 @@ namespace CropPDF.Classes.Helpers
                         var imagePath = Path.Combine(_tempFolder, $"{y}_{x}.png");
                         var image = XImage.FromFile(imagePath);
                         var page = doc.AddPage();
-                        page.Width = new XUnit(width);
-                        page.Height = new XUnit(height);
+                        page.Size = PdfSharp.PageSize.A4;
                         var graphics = XGraphics.FromPdfPage(page);
-                        graphics.DrawImage(image, 0, 0, width - _borderUnit, height - _borderUnit);
-                        var font = new XFont("Arial", _borderMM, XFontStyle.Bold);
-                        graphics.DrawString($"Ряд {GetLetter(y)} стр {x + 1}", font, XBrushes.Black, width / 2, height - _borderUnit / 2);
+                        graphics.DrawImage(image, _borderUnit, _borderUnit, width - 2 * _borderUnit, height - 2 * _borderUnit);
+                        var font = new XFont("Arial", 10, XFontStyle.Regular);
+                        graphics.DrawString($"Ряд {GetLetter(y)} стр {x + 1}", font, XBrushes.Black, width / 2 - 30 , height - _borderUnit - 10);
 
-                        var pen = new XPen(XColors.Black, 1)
+                        var pen = new XPen(XColor.FromKnownColor(GlobalSettings.Get("Color", XKnownColor.Black)), GlobalSettings.Get("Thickness", 0.5));
+
+                        if (GlobalSettings.Get("Line", LineEnum.Solid) == LineEnum.Solid)
                         {
-                            DashStyle = XDashStyle.DashDot,
-                            DashPattern = new double[] { 10, 20, 10 }
-                        };
-                        graphics.DrawLine(pen, new XPoint(width - _borderUnit, 0), new XPoint(width - _borderUnit, height - _borderUnit));
-                        graphics.DrawLine(pen, new XPoint(0, height - _borderUnit), new XPoint(width - _borderUnit, height - _borderUnit));
+                            pen.DashStyle = XDashStyle.Solid;
+                        }
+                        else
+                        {
+                            pen.DashStyle = XDashStyle.DashDot;
+                            pen.DashPattern = new double[] { 10, 20, 10 };
+                        }
+
+                        graphics.DrawRectangle(pen, new XRect(_borderUnit, _borderUnit, width - 2 * _borderUnit, height - 2 * _borderUnit));
 
                         image.Dispose();
                     }
